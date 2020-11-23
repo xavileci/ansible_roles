@@ -1,0 +1,84 @@
+# **************************
+# [y] hybris Cloud Services
+#
+# Apache2 configuration 2.0
+#
+# Domain Type: admin
+
+# HTTP
+<VirtualHost *:80>
+
+    # log settings
+    ErrorLog "{{ apache_logs }}/{{ domain_name }}/error.log"
+    CustomLog "{{ apache_logs }}/{{ domain_name }}/access.log" common
+
+    RewriteEngine on
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^(.*)$ https://%{SERVER_NAME}/$1 [R=301,L]
+
+</VirtualHost>
+
+# HTTPS
+<IfModule mod_ssl.c>
+    <VirtualHost *:443>
+
+        # log settings
+        ErrorLog "{{ apache_logs }}/{{ domain_name }}/error-ssl.log"
+        CustomLog "{{ apache_logs }}/{{ domain_name }}/access-ssl.log" common
+
+        # ================= #
+        # SSL Configuration #
+        # ================= #
+        SSLEngine On
+        SSLCertificateFile  {{ certificate_file }}
+        SSLCertificateKeyFile   {{ certificate_key }}
+        SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
+        SSLProtocol All -SSLv2 -SSLv3
+        SSLHonorCipherOrder On
+        SSLCompression off
+        SSLSessionTickets Off
+
+        # =================== #
+        # PROXY Configuration #
+        # =================== #
+        SSLProxyEngine on
+        SSLProxyVerify none
+        SSLProxyCheckPeerCN off
+        SSLProxyCheckPeerName off
+        SSLProxyCheckPeerExpire off
+
+        ProxyRequests     Off
+        ProxyPreserveHost On
+        ProxyErrorOverride Off
+        AllowEncodedSlashes NoDecode
+        ProxyPreserveHost on
+        ProxyStatus on
+
+	<FilesMatch "\.(cgi|shtml|phtml|php)$">
+		SSLOptions +StdEnvVars
+	</FilesMatch>
+
+	<Directory /usr/lib/cgi-bin>
+		SSLOptions +StdEnvVars
+	</Directory>
+
+        # PROXY
+        ProxyPreserveHost on
+        ProxyStatus on
+ 
+        # ProxyPass
+        ProxyPass /medias/ http://{{ media_server }}/medias/ nocanon
+        ProxyPassReverse /medias/ http://{{ media_server }}/medias/
+
+        ProxyPass /hac/ ajp://{{ hybris_master }}:8009/hac/ nocanon
+        ProxyPassReverse /hac/ ajp://{{ hybris_master }}:8009/hac/
+
+        ProxyPass /backoffice/ ajp://{{ hybris_master }}:8009/backoffice/ nocanon
+        ProxyPassReverse /backoffice/ ajp://{{ hybris_master }}:8009/backoffice/
+
+        ProxyPass / https://{{ hybris_front }}:9002/ nocanon
+        ProxyPassReverse / https://{{ hybris_front }}:9002/ 
+ 
+    </VirtualHost>
+</IfModule>
+
