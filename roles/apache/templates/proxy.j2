@@ -8,6 +8,8 @@
 # HTTP
 <VirtualHost *:80>
 
+    ServerName  "{{ vhost.servername }}"
+    ServerAlias  "{{ vhost.serveralias }}"
     # log settings
     ErrorLog "{{ apache_logs }}/{{ domain_name }}/error.log"
     CustomLog "{{ apache_logs }}/{{ domain_name }}/access.log" common
@@ -22,6 +24,8 @@
 <IfModule mod_ssl.c>
     <VirtualHost *:443>
 
+        ServerName  "{{ vhost.servername }}"
+        ServerAlias  "{{ vhost.serveralias }}"
         # log settings
         ErrorLog "{{ apache_logs }}/{{ domain_name }}/error-ssl.log"
         CustomLog "{{ apache_logs }}/{{ domain_name }}/access-ssl.log" common
@@ -30,8 +34,8 @@
         # SSL Configuration #
         # ================= #
         SSLEngine On
-        SSLCertificateFile  {{ certificate_file }}
-        SSLCertificateKeyFile   {{ certificate_key }}
+        SSLCertificateFile  {{ vhos_ssl.certificate_file }}
+        SSLCertificateKeyFile   {{ vhos_ssl.certificate_key_file}}
         SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
         SSLProtocol All -SSLv2 -SSLv3
         SSLHonorCipherOrder On

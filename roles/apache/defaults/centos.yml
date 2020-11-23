@@ -1,0 +1,4 @@
+---
+#Variables for debian OS
+apache_logs: /var/log/httpd
+apache_conf: /etc/httpd

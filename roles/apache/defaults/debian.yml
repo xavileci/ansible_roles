@@ -1,0 +1,4 @@
+---
+#Variables for debian OS
+apache_logs: /var/log/apache2
+apache_conf: /etc/apache2
